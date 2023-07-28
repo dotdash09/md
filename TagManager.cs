@@ -34,9 +34,14 @@ public class TagManager
         if (musicInfo.PlaylistIndex.HasValue)
             customTag.SetField("TRACKNUMBER", musicInfo.PlaylistIndex.ToString());
 
-        customTag.SetField("SONG_ID", musicInfo.SongId);
-        customTag.SetField("ALBUM_ID", musicInfo.AlbumId);
-        customTag.SetField("CHANNEL_ID", musicInfo.ChanneId);
+        if(musicInfo.SongId != null)
+            customTag.SetField("TRACK_ID", musicInfo.SongId);
+        if(musicInfo.AlbumId != null)
+            customTag.SetField("ALBUM_ID", musicInfo.AlbumId);
+        if(musicInfo.ChanneId != null)
+            customTag.SetField("CHANNEL_ID", musicInfo.ChanneId);
+        if(musicInfo.AlbumType != null)
+            customTag.SetField("ALBUM_TYPE", musicInfo.AlbumType);
 
         // 기타 태그 삭제 (ENCODER 태그는 삭제 불가)
         customTag.SetField("ENCODER", "unknown encoder");
@@ -61,7 +66,7 @@ public class TagManager
         if (musicInfo.PlaylistIndex.HasValue)
             customTag.Track = (uint)musicInfo.PlaylistIndex;
 
-        customTag.SetDashBox("YT", "SONG_ID", musicInfo.SongId);
+        customTag.SetDashBox("YT", "TRACK_ID", musicInfo.SongId);
         customTag.SetDashBox("YT", "ALBUM_ID", musicInfo.AlbumId);
         customTag.SetDashBox("YT", "CHANNEL_ID", musicInfo.ChanneId);
 

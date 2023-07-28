@@ -7,12 +7,12 @@ namespace MusicDown;
 
 public class CoverManager
 {
-    public async Task<Stream> Download(MusicInfo musicInfo)
+    public async Task<Stream> Download(string url)
     {
         using HttpClient httpClient = new HttpClient();
         var converMemoryStream = new MemoryStream();
 
-        var coverStream = await httpClient.GetStreamAsync(musicInfo.Thumbnail.Url);
+        var coverStream = await httpClient.GetStreamAsync(url);
         await coverStream.CopyToAsync(converMemoryStream);
 
         return converMemoryStream;

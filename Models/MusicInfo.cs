@@ -61,6 +61,9 @@ public class MusicInfo
     [JsonPropertyName("channel_id")]
     public string ChanneId { get; set; }
 
+    [JsonIgnore]
+    public string AlbumType { get; set; }
+
     /// <summary>
     /// 음악 포맷 (파일 기록에 사용하지 않음)
     /// </summary>

@@ -13,18 +13,16 @@ public class Program
     static async Task Main(string[] args)
     {
         var tmpDir = "/home/dotdash09/tmp";
-        // var ytUrl = "https://music.youtube.com/channel/UCvolP1xNN2maB52Tb1PkXzg";
-        // var ytUrl = args[0];
-
-
-        // string AlbumArtist = "";
 
         while (true)
         {
+            Console.Write("언어  1:ko(Default), 2:en: ");
+            var language = Console.ReadLine() == "2" ? "en" : "ko";
+
             Console.Write("앨범 아티스트: ");
             string AlbumArtist = Console.ReadLine();
 
-            if(string.IsNullOrEmpty(AlbumArtist) == true)
+            if (string.IsNullOrEmpty(AlbumArtist) == true)
             {
                 AlbumArtist = "Various Artists";
                 Console.WriteLine("앨범 아티스트: Various Artists");
@@ -39,7 +37,7 @@ public class Program
             var urlType = urlParser.GetUrlType(ytUrl);
             var id = urlParser.GetId(ytUrl);
 
-            var pyManager = new PyManager();
+            var pyManager = new PyManager(language);
 
             List<YtMusicApiAlbumResults> allResult = new List<YtMusicApiAlbumResults>();
 
@@ -53,24 +51,32 @@ public class Program
                 List<YtMusicApiAlbumResults> singleResuls = new List<YtMusicApiAlbumResults>();
 
                 // 앨범
-                if (ytMusicApiChannel.Albums.HasMoreAlbums == false)
-                    albumResuls = ytMusicApiChannel.Albums.Results;
-                else
+                if (ytMusicApiChannel.Albums != null)
                 {
-                    var albumJson = pyManager.GetArtistAlbums(id);
-                    albumResuls = JsonSerializer.Deserialize<List<YtMusicApiAlbumResults>>(albumJson, JsonSerializerOptions.Default);
+                    if (ytMusicApiChannel.Albums?.HasMoreAlbums == false)
+                        albumResuls = ytMusicApiChannel.Albums.Results;
+                    else
+                    {
+                        var albumJson = pyManager.GetArtistAlbums(id);
+                        albumResuls = JsonSerializer.Deserialize<List<YtMusicApiAlbumResults>>(albumJson, JsonSerializerOptions.Default);
+                    }
+
+                    allResult = allResult.Concat(albumResuls).ToList();
                 }
 
                 // 싱글
-                if (ytMusicApiChannel.Singles.HasMoreAlbums == false)
-                    singleResuls = ytMusicApiChannel.Singles.Results;
-                else
+                if (ytMusicApiChannel.Singles != null)
                 {
-                    var singleResulsJson = pyManager.GetArtistSingles(id);
-                    singleResuls = JsonSerializer.Deserialize<List<YtMusicApiAlbumResults>>(singleResulsJson, JsonSerializerOptions.Default);
-                }
+                    if (ytMusicApiChannel.Singles.HasMoreAlbums == false)
+                        singleResuls = ytMusicApiChannel.Singles.Results;
+                    else
+                    {
+                        var singleResulsJson = pyManager.GetArtistSingles(id);
+                        singleResuls = JsonSerializer.Deserialize<List<YtMusicApiAlbumResults>>(singleResulsJson, JsonSerializerOptions.Default);
+                    }
 
-                allResult = albumResuls.Concat(singleResuls).ToList();
+                    allResult = allResult.Concat(singleResuls).ToList();
+                }
             }
 
             else if (urlType == UrlType.List)
@@ -90,7 +96,7 @@ public class Program
             foreach (var album in allResult)
             {
                 string albumtrackJson = pyManager.GetTracks(album.BrowseId);
-                album.AlbumTrack = JsonSerializer.Deserialize<YTMusicApiAlbumTrack>(albumtrackJson, JsonSerializerOptions.Default);                
+                album.AlbumTrack = JsonSerializer.Deserialize<YTMusicApiAlbumTrack>(albumtrackJson, JsonSerializerOptions.Default);
             }
 
             // https://music.youtube.com/watch?v=QV8D6P-NR4c&feature=share
